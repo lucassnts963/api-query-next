@@ -4,6 +4,19 @@ import bcrypt from "bcrypt";
 import database from "@/infra/database";
 import { signJWT } from "@/lib/auth";
 
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Ajuste para o domínio da aplicação Flutter em produção
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    }
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const { email, password, name } = await request.json();

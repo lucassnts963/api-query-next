@@ -4,6 +4,21 @@ import bcrypt from "bcrypt";
 import database from "@/infra/database";
 import { signJWT } from "@/lib/auth";
 
+// Handler para o método OPTIONS (requisito para CORS)
+export async function OPTIONS() {
+  return NextResponse.json(
+    {},
+    {
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Ajuste para o domínio da aplicação Flutter em produção
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    }
+  );
+}
+
+// Handler para o método POST (login)
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
@@ -17,7 +32,7 @@ export async function POST(request: NextRequest) {
     if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Credenciais inválidas" },
-        { status: 401 }
+        { status: 401, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -28,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (!validPassword) {
       return NextResponse.json(
         { error: "Credenciais inválidas" },
-        { status: 401 }
+        { status: 401, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -39,18 +54,21 @@ export async function POST(request: NextRequest) {
       email: user.email,
     });
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
+    return NextResponse.json(
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        token,
       },
-      token,
-    });
+      { headers: { "Access-Control-Allow-Origin": "*" } }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { error: "Erro ao fazer login", details: error.message },
-      { status: 400 }
+      { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
     );
   }
 }
